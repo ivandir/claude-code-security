@@ -1,0 +1,23 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y jq shellcheck
+      - name: Shellcheck
+        run: shellcheck -S warning -x .claude/hooks/*.sh scripts/*.sh tests/run.sh
+      - name: Validate JSON
+        run: jq -e . .claude/settings.json managed/managed-settings.example.json > /dev/null
+      - name: Hook tests
+        run: bash tests/run.sh
